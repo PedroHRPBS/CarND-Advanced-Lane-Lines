@@ -83,24 +83,54 @@ I verified that my perspective transform was working as expected by drawing the 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of color, gradient thresholds and area of interest to generate a binary image. The code for that can be seen at the 10th code cell of the Jupyter Notebook. Doing so I could highlight the lane lines and also reduce noise from lateral points that are not inside the area of interest.  Here's an example of my output for this step.  
+I used a combination of color, gradient thresholds and area of interest to generate a binary image.  
+For the color transform, I chose to use HLS color scheme and focused on the S channel, because it is more robust on light variations.  
+For Gradient Threshold I focused on the Sobel gradient in X direction, because as the lanes are more vertical, it would highlight them better.  
+Besides that, I also selected an area of interest so I could avoid having misinformation on the sides.
+The code for that can be seen at the 10th code cell of the Jupyter Notebook. Here's an example of my output for this step.  
 
 ![alt text][image4]
 
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+To achieve that, on code cell #12, I utilized a histogram + sliding window algorithm.
+The function of the histogram, is to sum all the pixels from the bottom half of the image, in the vertical direction. Doing so, we can detected where two locations with more pixels, and that represents our two lines.
+The sliding window algorithm is useful to detected the whole line, so we can fit a polynomial to it and have its equation. With that its easier to calculate the curvature of the curve.  
+The final result can be seen on the next picture:
 
 ![alt text][image5]
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+I did this on the 15th code cell of the Jupyter Notebook. To do so, first I got my polynomial equation that represents my lines and we that, I applied the curvature formula from the classroom:
+
+```
+left_curverad = ((1 + (2*left_fit_cr[0]*y_eval + left_fit_cr[1])**2)**1.5) / np.absolute(2*left_fit_cr[0])
+right_curverad = ((1 + (2*right_fit_cr[0]*y_eval + right_fit_cr[1])**2)**1.5) / np.absolute(2*right_fit_cr[0]) 
+```
+It is good to highlight that in this function, we are also performing the conversion from pixel to meters, so we can have a correct and readable value of curvature.
+
+```
+ym_per_pix = 30/720 # meters per pixel in y dimension
+xm_per_pix = 3.7/700 # meters per pixel in x dimension
+```
+To perform the calculation of vehicle position, we had to consider that the camera was fixed of the middle of the vehicle. With that, we calculated the values of the poplynomials on the bottom of the image and with that, we found the middle of the lane.
+
+```
+bottom_y = 669
+vehicle_center = 640
+    
+l_fit_x_int = left_fit_cr[0]*bottom_y**2 + left_fit_cr[1]*bottom_y + left_fit_cr[2]
+r_fit_x_int = right_fit_cr[0]*bottom_y**2 + right_fit_cr[1]*bottom_y + right_fit_cr[2]
+    
+lane_center_position = (r_fit_x_int + l_fit_x_int)/2
+vehicle_pos = (vehicle_center - lane_center_position) * xm_per_pix
+```
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+I implemented this step on the code cell #16,`plot_lane_lines()`.  Here is an example of my result on a test image:
 
 ![alt text][image6]
 
@@ -110,7 +140,7 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to my video result](./output/project_video_output.mp4)
 
 ---
 
