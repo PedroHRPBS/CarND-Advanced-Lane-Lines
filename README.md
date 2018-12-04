@@ -83,7 +83,7 @@ I verified that my perspective transform was working as expected by drawing the 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+I used a combination of color, gradient thresholds and area of interest to generate a binary image. The code for that can be seen at the 10th code cell of the Jupyter Notebook. Doing so I could highlight the lane lines and also reduce noise from lateral points that are not inside the area of interest.  Here's an example of my output for this step.  
 
 ![alt text][image4]
 
